@@ -1,0 +1,33 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  annotations:
+    policies.kyverno.io/subject: Service
+    policies.kyverno.io/title: Bock creation of Service with type NodePort
+  name: blockserviceswithnodeport
+spec:
+  admission: true
+  background: true
+  validationFailureAction: enforce #or audit
+  rules:
+    - match:
+        any:
+          - resources:
+              kinds:
+                - Service
+              namespaceSelector:
+                matchExpressions:
+                  - key: security-level
+                    operator: In
+                    values:
+                      - medium
+              operations:
+                - CREATE
+      name: blockserviceswithnodeport
+      skipBackgroundRequests: true
+      validate:
+        allowExistingViolations: true
+        message: "Users are not allowed to create Services with type NodePort"
+        pattern:
+          spec:
+            type: '!NodePort'

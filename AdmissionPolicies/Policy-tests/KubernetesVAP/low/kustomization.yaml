@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: andreas-test-project-low
+commonAnnotations:
+  argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+
+nameSuffix: -low
+labels:
+  - pairs:
+      security-level: low
+
+resources:
+  - ../../base
+
+patches:
+  - target:
+      version: v1
+      kind: Service
+      name: opademo
+    path: service-patch.yaml
